@@ -2,7 +2,10 @@
 """
 Created on Fri Aug 04 16:37:06 2017
 
-PyVCD example
+Read ascii files from HP16555A logic analyzer card and create a a
+Verilog VCD format file
+This can be viewed in GTKWave
+It is a nice example of using the PyVCD module
 
 @author: bryan.rozier
 """
@@ -12,7 +15,7 @@ import os
 import glob
 
 from vcd import VCDWriter
-
+# fixed data path for now eventually move to command line arguments
 dpath ="HP16500C_LA_FTP\slot_d\data.asc\machine1"
 #these are reserved word with specific lengths as we have no way of getting this short of 
 #decomposing the setting binary file (maybe one day)
@@ -28,7 +31,7 @@ machine_name = os.path.split(dpath)[1]
 machine_name="HP16555A."+machine_name
 
 #print machine_name
-file_list = []
+file_list = []# full relative path of ascii files
 var_list = []
 signal_list = []
 file_handle_list=[]
@@ -39,8 +42,16 @@ with VCDWriter(sys.stdout, timescale='1 ns', date='today') as writer:
     for filename in glob.glob(os.path.join(dpath, '*.txt')):
         if os.path.basename(filename) != "1st_line.txt":
             file_list.append(filename)
+    # create list f signals using the filename
+    # strictly this is wrong e should use the first line in each file as the 
+    # data name
+    for filename in file_list:
+        if os.path.basename(filename) != "1st_line.txt":
             signal_list.append(os.path.splitext(os.path.basename(filename))[0])
-    # create a vcd variable for each signal       
+    # re-order list so line number and absolute time at start
+    #old_index = list1.index(item)
+    #then move it:
+    #list1.insert(new_index, list1.pop(old_index))    # create a vcd variable for each signal       
     for signal in signal_list:
         if signal == addr_name:
             size=addr_size
