@@ -37,7 +37,7 @@ signal_list = []
 file_handle_list=[]
 prev_line = []
 
-with VCDWriter(sys.stdout, timescale='1 ns', date='today',init_timestamp=-99999999999999999999999999) as writer:
+with VCDWriter(sys.stdout, timescale='1 ns', date='today',init_timestamp=0) as writer:
     # figure out what signals ther are
     # each signal has its own file
     for filename in glob.glob(os.path.join(dpath, '*.txt')):
@@ -74,6 +74,7 @@ with VCDWriter(sys.stdout, timescale='1 ns', date='today',init_timestamp=-999999
     #scan through each file until emppty
     ftimestamp = 0.0
     timestamp=0
+    init_timestamp=0
     line_count =0
     while line_count <10:
         file_count=0
@@ -91,8 +92,14 @@ with VCDWriter(sys.stdout, timescale='1 ns', date='today',init_timestamp=-999999
                         writer.change(var_list[file_count], timestamp, int(line.rstrip(),16))
                         prev_line[file_count]=line
                 elif signal_list[file_count]=='time_abs':
-                    ftimestamp=float(line.rstrip())
-                    timestamp=int(ftimestamp*1e9) # convert to whole number
+                    if line_count==1:
+                        #store initial timestamp
+                        ftimestamp=float(line.rstrip())
+                        init_timestamp=int(ftimestamp*1e9) # convert to whole number
+                        timestamp=0
+                    else:
+                        ftimestamp=float(line.rstrip())
+                        timestamp=int(ftimestamp*1e9)-init_timestamp # convert to whole number
                     
             else:
                 #store variable name as previous value bound nt to repeat! bit of a hack
