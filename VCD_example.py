@@ -21,16 +21,22 @@ addr_size = 16
 data_name = "DATA.TXT"
 data_size = 8
 
+#machine_name = os.path.split(os.path.dirname(dpath))[1]
+machine_name = os.path.split(dpath)[1]
+machine_name="HP16555A."+machine_name
+
+#print machine_name
+
 with VCDWriter(sys.stdout, timescale='1 ns', date='today') as writer:
-    for filename in glob.glob(os.path.join(dpath, '*.txt')):
-        if os.path.basename(filename) == "1st_line.txt don't treat as data ":
-            print "this is the 1st line" + filename
-        else:
-            print filename
+#    for filename in glob.glob(os.path.join(dpath, '*.txt')):
+#        if os.path.basename(filename) == "1st_line.txt don't treat as data ":
+            #print "this is the 1st line" + filename
+#        else:
+            #print filename
         
-    counter_var = writer.register_var('analyzer', 'counter', 'integer', size=8)
-    bit_var = writer.register_var('analyzer','/M1','wire', size=1)
-    addr_var = writer.register_var('analyzer','ADDR','wire', size=16)
+    counter_var = writer.register_var(machine_name, 'counter', 'integer', size=8)
+    bit_var = writer.register_var(machine_name,'/M1','wire', size=1)
+    addr_var = writer.register_var(machine_name,'ADDR','wire', size=16)
     for timestamp, value in enumerate(range(10, 20, 2)):
         writer.change(counter_var, timestamp, value)
         writer.change(bit_var, timestamp, value>12)
