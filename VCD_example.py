@@ -41,17 +41,23 @@ with VCDWriter(sys.stdout, timescale='1 ns', date='today') as writer:
     # each signal has its own file
     for filename in glob.glob(os.path.join(dpath, '*.txt')):
         if os.path.basename(filename) != "1st_line.txt":
-            file_list.append(filename)
-    # create list f signals using the filename
+            file_list.append(os.path.basename(filename))
+    # re-order list so line number and absolute time at start
+    #find line number
+    old_index = file_list.index("line_num.txt")
+    #then move it:
+    file_list.insert(0, file_list.pop(old_index))   
+    #find time
+    old_index = file_list.index("time_abs.txt")
+    #then move it:
+    file_list.insert(1, file_list.pop(old_index))   
+    
+    # create list of signals using the filename list
     # strictly this is wrong e should use the first line in each file as the 
     # data name
     for filename in file_list:
-        if os.path.basename(filename) != "1st_line.txt":
-            signal_list.append(os.path.splitext(os.path.basename(filename))[0])
-    # re-order list so line number and absolute time at start
-    #old_index = list1.index(item)
-    #then move it:
-    #list1.insert(new_index, list1.pop(old_index))    # create a vcd variable for each signal       
+        if filename != "1st_line.txt":
+            signal_list.append(os.path.splitext(filename)[0])
     for signal in signal_list:
         if signal == addr_name:
             size=addr_size
@@ -59,10 +65,10 @@ with VCDWriter(sys.stdout, timescale='1 ns', date='today') as writer:
             size=data_size
         else:
             size=1
-        var_list.append(writer.register_var(machine_name, signal, 'wire', size)) 
+        var_list.append(writer.register_var(machine_name, signal, 'wire', size))  # create a vcd variable for each signal   
     #open all the filez
     for filename in file_list:
-        file_handle_list.append(open(filename)) #defaults to read only
+        file_handle_list.append(open(dpath+"\\"+filename)) #defaults to read only
         
     #scan through each file until emppty
     timestamp = 0
