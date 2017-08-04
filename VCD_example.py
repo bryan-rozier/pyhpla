@@ -8,10 +8,26 @@ PyVCD example
 """
 
 import sys
+import os
+import glob
 
 from vcd import VCDWriter
 
+dpath ="HP16500C_LA_FTP\slot_d\data.asc\machine1"
+#these are reserved word with specific lengths as we have no way of getting this short of 
+#decomposing the setting binary file (maybe one day)
+addr_name = "ADDR.TXT"
+addr_size = 16
+data_name = "DATA.TXT"
+data_size = 8
+
 with VCDWriter(sys.stdout, timescale='1 ns', date='today') as writer:
+    for filename in glob.glob(os.path.join(dpath, '*.txt')):
+        if os.path.basename(filename) == "1st_line.txt don't treat as data ":
+            print "this is the 1st line" + filename
+        else:
+            print filename
+        
     counter_var = writer.register_var('analyzer', 'counter', 'integer', size=8)
     bit_var = writer.register_var('analyzer','/M1','wire', size=1)
     addr_var = writer.register_var('analyzer','ADDR','wire', size=16)
