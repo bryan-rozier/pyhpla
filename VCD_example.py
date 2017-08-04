@@ -37,7 +37,7 @@ signal_list = []
 file_handle_list=[]
 prev_line = []
 
-with VCDWriter(sys.stdout, timescale='1 ns', date='today') as writer:
+with VCDWriter(sys.stdout, timescale='1 ns', date='today',init_timestamp=-99999999999999999999999999) as writer:
     # figure out what signals ther are
     # each signal has its own file
     for filename in glob.glob(os.path.join(dpath, '*.txt')):
@@ -72,9 +72,9 @@ with VCDWriter(sys.stdout, timescale='1 ns', date='today') as writer:
         file_handle_list.append(open(dpath+"\\"+filename)) #defaults to read only
         
     #scan through each file until emppty
-    timestamp = 0
+    ftimestamp = 0.0
+    timestamp=0
     line_count =0
-    file_count=0
     while line_count <10:
         file_count=0
 #        for file_handle,signal,var in file_handle_list,signal_list,var_list:
@@ -85,13 +85,19 @@ with VCDWriter(sys.stdout, timescale='1 ns', date='today') as writer:
                 #print line_count,line
                 #if len(prev_line) != len(signal_list):
                     
-                if signal_list[file_count]!='timestamp' and signal_list[file_count]!='time_abs':
+                if signal_list[file_count]!='line_num' and signal_list[file_count]!='time_abs':
                     #print signal_list[file_count]
-                    ##if prev_line[file_count]!=line or line_count==1:# take account that we store previous line first time through
-                    writer.change(var_list[file_count], timestamp, int(line.rstrip(),16))
+                    if prev_line[file_count]!=line:
+                        writer.change(var_list[file_count], timestamp, int(line.rstrip(),16))
+                        prev_line[file_count]=line
+                elif signal_list[file_count]=='time_abs':
+                    ftimestamp=float(line.rstrip())
+                    timestamp=int(ftimestamp*1e9) # convert to whole number
+                    
             else:
+                #store variable name as previous value bound nt to repeat! bit of a hack
                 prev_line.insert(file_count,line)
-            prev_line[file_count]=line
+            
             file_count+=1
         
 #    for timestamp, value in enumerate(range(10, 20, 2)):
