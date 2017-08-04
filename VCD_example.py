@@ -26,13 +26,19 @@ machine_name = os.path.split(dpath)[1]
 machine_name="HP16555A."+machine_name
 
 #print machine_name
+file_list = []
+var_list = []
 
 with VCDWriter(sys.stdout, timescale='1 ns', date='today') as writer:
-#    for filename in glob.glob(os.path.join(dpath, '*.txt')):
-#        if os.path.basename(filename) == "1st_line.txt don't treat as data ":
-            #print "this is the 1st line" + filename
-#        else:
+    for filename in glob.glob(os.path.join(dpath, '*.txt')):
+        if os.path.basename(filename) == "1st_line.txt":
+            print "this is the 1st line don't treat as data " + filename
+            #print os.path.splitext(os.path.basename(filename))[0]
+        else:
             #print filename
+            print os.path.splitext(os.path.basename(filename))[0]
+            file_list.append(filename)
+            var_list.append(os.path.splitext(os.path.basename(filename))[0])
         
     counter_var = writer.register_var(machine_name, 'counter', 'integer', size=8)
     bit_var = writer.register_var(machine_name,'/M1','wire', size=1)
