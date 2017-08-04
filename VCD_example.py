@@ -16,9 +16,9 @@ from vcd import VCDWriter
 dpath ="HP16500C_LA_FTP\slot_d\data.asc\machine1"
 #these are reserved word with specific lengths as we have no way of getting this short of 
 #decomposing the setting binary file (maybe one day)
-addr_name = "ADDR.TXT"
+addr_name = "addr"
 addr_size = 16
-data_name = "DATA.TXT"
+data_name = "data"
 data_size = 8
 
 #machine_name = os.path.split(os.path.dirname(dpath))[1]
@@ -28,17 +28,21 @@ machine_name="HP16555A."+machine_name
 #print machine_name
 file_list = []
 var_list = []
+signal_list = []
 
 with VCDWriter(sys.stdout, timescale='1 ns', date='today') as writer:
     for filename in glob.glob(os.path.join(dpath, '*.txt')):
-        if os.path.basename(filename) == "1st_line.txt":
-            print "this is the 1st line don't treat as data " + filename
-            #print os.path.splitext(os.path.basename(filename))[0]
-        else:
-            #print filename
-            print os.path.splitext(os.path.basename(filename))[0]
+        if os.path.basename(filename) != "1st_line.txt":
             file_list.append(filename)
-            var_list.append(os.path.splitext(os.path.basename(filename))[0])
+            signal_list.append(os.path.splitext(os.path.basename(filename))[0])
+    for signal in signal_list:
+        if signal == addr_name:
+            size=addr_size
+        elif signal == data_name:
+            size=data_size
+        else:
+            size=1
+        var_list.append(writer.register_var(machine_name, signal, 'wire', size))        
         
     counter_var = writer.register_var(machine_name, 'counter', 'integer', size=8)
     bit_var = writer.register_var(machine_name,'/M1','wire', size=1)
