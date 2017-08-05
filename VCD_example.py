@@ -60,6 +60,9 @@ try:
         for filename in file_list:
             if filename != "1st_line.txt":
                 signal_list.append(os.path.splitext(filename)[0])
+        # create list of vcd variables using the filename as the variable name
+        # not strictly correct as the first line in each data file is its
+        # true label as displayed by the LA
         for signal in signal_list:
             if signal == addr_name:
                 size=addr_size
@@ -67,7 +70,12 @@ try:
                 size=data_size
             else:
                 size=1
-            var_list.append(writer.register_var(machine_name, signal, 'wire', size))  # create a vcd variable for each signal   
+            if signal!='line_num' and signal!='time_abs':
+                # create a vcd variable for each signal
+                var_list.append(writer.register_var(machine_name, signal, 'wire', size))   
+            else:
+                #create a dummy entry in the variable list as we don't want to display these two
+                var_list.append(0)
         #open all the filez
         for filename in file_list:
             file_handle_list.append(open(dpath+"\\"+filename)) #defaults to read only
@@ -77,20 +85,19 @@ try:
         timestamp=0
         init_timestamp=0
         line_count =0
-        #while line_count <1000:
+        #while line_count <10:
+        #use above line for tetsing
         while True:
             file_count=0
     #        for file_handle,signal,var in file_handle_list,signal_list,var_list:
             for file_handle in file_handle_list:
                 line=file_handle.readline()
-                #first line in file is a label we'll ignore taht at the moment
+                #first line in file is a label we'll ignore that at the moment
                 if line_count !=0:
-                    #print line_count,line
-                    #if len(prev_line) != len(signal_list):
-                        
                     if signal_list[file_count]!='line_num' and signal_list[file_count]!='time_abs':
                         #print signal_list[file_count]
                         if prev_line[file_count]!=line:
+                            # assume all lines are hex this works okay for binary too
                             writer.change(var_list[file_count], timestamp, int(line.rstrip(),16))
                             prev_line[file_count]=line
                     elif signal_list[file_count]=='time_abs':
@@ -109,12 +116,7 @@ try:
                 
                 file_count+=1
             
-    #    for timestamp, value in enumerate(range(10, 20, 2)):
-    #        writer.change(counter_var, timestamp, value)
-    #        writer.change(bit_var, timestamp, value>12)
-    #        writer.change(addr_var, timestamp, value+0xff00)
             line_count+=1
-            timestamp+=1
             
 except ValueError:
     for file_handle in file_handle_list:
