@@ -29,7 +29,12 @@ try:
         #read first record
         f.seek(0)
         record = f.read(256)
-        f_magic,f_magicstr=struct.unpack("cx6s",record[:8])
+        # useful things we know about record 0
+        # 0x0000 0x80 magic number inidctae HOP series 80 file
+        # 0x0002 "HPSLIF" Text strin inidctaes file type
+        # 0x0020 LLLLLLLL Length Big Endian format Motorola 68000
+        f_magic,f_magicstr,num_records=struct.unpack(">Bx6s24xi",record[:36])
+        
 
 except ValueError:
     for file_handle in file_handle_list:
