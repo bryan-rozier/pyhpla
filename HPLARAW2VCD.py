@@ -33,11 +33,23 @@ try:
         # 0x0000 0x80 magic number inidctae HOP series 80 file
         # 0x0002 "HPSLIF" Text strin inidctaes file type
         # 0x0020 LLLLLLLL Length Big Endian format Motorola 68000
-        f_magic,f_magicstr,num_records=struct.unpack(">Bx6s24xi",record[:36])
+        f_magic,f_magicstr,num_records=struct.unpack(">Bx6s24xI",record[:36])
         if f_magic==0x80 and f_magicstr=="HFSLIF":
+                print "Correct format file hurrah"
+        #read 'directory' record
+        f.seek(0x100)
+        record = f.read(256)
+        # useful things we know about record 1
+        # 0x0100 "WS_FILE   " 10 digit filename
+        # 0x0002 "HPSLIF" Text strin inidctaes file type
+        # skip date as it is not used
+        # 0x0020 LLLLLLLL Length Big Endian format Motorola 68000
+        #f_name,f_filetype,f_filestart,num_records,f_magic,f_implementation=struct.unpack(">10sHIIx6HI",record[:37])
+        dirf_name=struct.unpack(">10s",record[:10])
+        if f_name[0]=="WS_FILE   ":
                 print "Correct format file hurrah"
         
 
 except ValueError:
-    for file_handle in file_handle_list:
-        file_handle.close()
+    print "bad fing appen"
+    f.close()
