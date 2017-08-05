@@ -34,6 +34,8 @@ try:
         # 0x0002 "HPSLIF" Text strin inidctaes file type
         # 0x0020 LLLLLLLL Length Big Endian format Motorola 68000
         f_magic,f_magicstr,num_records=struct.unpack(">Bx6s24xi",record[:36])
+        if f_magic==0x80 and f_magicstr=="HFSLIF":
+                print "Correct format file hurrah"
         
 
 except ValueError:
