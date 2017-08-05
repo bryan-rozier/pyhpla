@@ -37,82 +37,85 @@ signal_list = []
 file_handle_list=[]
 prev_line = []
 
-with VCDWriter(sys.stdout, timescale='1 ns', date='today',init_timestamp=0) as writer:
-    # figure out what signals ther are
-    # each signal has its own file
-    for filename in glob.glob(os.path.join(dpath, '*.txt')):
-        if os.path.basename(filename) != "1st_line.txt":
-            file_list.append(os.path.basename(filename))
-    # re-order list so line number and absolute time at start
-    #find line number
-    old_index = file_list.index("line_num.txt")
-    #then move it:
-    file_list.insert(0, file_list.pop(old_index))   
-    #find time
-    old_index = file_list.index("time_abs.txt")
-    #then move it:
-    file_list.insert(1, file_list.pop(old_index))   
-    
-    # create list of signals using the filename list
-    # strictly this is wrong e should use the first line in each file as the 
-    # data name
-    for filename in file_list:
-        if filename != "1st_line.txt":
-            signal_list.append(os.path.splitext(filename)[0])
-    for signal in signal_list:
-        if signal == addr_name:
-            size=addr_size
-        elif signal == data_name:
-            size=data_size
-        else:
-            size=1
-        var_list.append(writer.register_var(machine_name, signal, 'wire', size))  # create a vcd variable for each signal   
-    #open all the filez
-    for filename in file_list:
-        file_handle_list.append(open(dpath+"\\"+filename)) #defaults to read only
+try:
+    with VCDWriter(sys.stdout, timescale='1 ns', date='today',init_timestamp=0) as writer:
+        # figure out what signals ther are
+        # each signal has its own file
+        for filename in glob.glob(os.path.join(dpath, '*.txt')):
+            if os.path.basename(filename) != "1st_line.txt":
+                file_list.append(os.path.basename(filename))
+        # re-order list so line number and absolute time at start
+        #find line number
+        old_index = file_list.index("line_num.txt")
+        #then move it:
+        file_list.insert(0, file_list.pop(old_index))   
+        #find time
+        old_index = file_list.index("time_abs.txt")
+        #then move it:
+        file_list.insert(1, file_list.pop(old_index))   
         
-    #scan through each file until emppty
-    ftimestamp = 0.0
-    timestamp=0
-    init_timestamp=0
-    line_count =0
-    while line_count <10:
-        file_count=0
-#        for file_handle,signal,var in file_handle_list,signal_list,var_list:
-        for file_handle in file_handle_list:
-            line=file_handle.readline()
-            #first line in file is a label we'll ignore taht at the moment
-            if line_count !=0:
-                #print line_count,line
-                #if len(prev_line) != len(signal_list):
-                    
-                if signal_list[file_count]!='line_num' and signal_list[file_count]!='time_abs':
-                    #print signal_list[file_count]
-                    if prev_line[file_count]!=line:
-                        writer.change(var_list[file_count], timestamp, int(line.rstrip(),16))
-                        prev_line[file_count]=line
-                elif signal_list[file_count]=='time_abs':
-                    if line_count==1:
-                        #store initial timestamp
-                        ftimestamp=float(line.rstrip())
-                        init_timestamp=int(ftimestamp*1e9) # convert to whole number
-                        timestamp=0
-                    else:
-                        ftimestamp=float(line.rstrip())
-                        timestamp=int(ftimestamp*1e9)-init_timestamp # convert to whole number
-                    
+        # create list of signals using the filename list
+        # strictly this is wrong e should use the first line in each file as the 
+        # data name
+        for filename in file_list:
+            if filename != "1st_line.txt":
+                signal_list.append(os.path.splitext(filename)[0])
+        for signal in signal_list:
+            if signal == addr_name:
+                size=addr_size
+            elif signal == data_name:
+                size=data_size
             else:
-                #store variable name as previous value bound nt to repeat! bit of a hack
-                prev_line.insert(file_count,line)
+                size=1
+            var_list.append(writer.register_var(machine_name, signal, 'wire', size))  # create a vcd variable for each signal   
+        #open all the filez
+        for filename in file_list:
+            file_handle_list.append(open(dpath+"\\"+filename)) #defaults to read only
             
-            file_count+=1
-        
-#    for timestamp, value in enumerate(range(10, 20, 2)):
-#        writer.change(counter_var, timestamp, value)
-#        writer.change(bit_var, timestamp, value>12)
-#        writer.change(addr_var, timestamp, value+0xff00)
-        line_count+=1
-        timestamp+=1
-        
+        #scan through each file until emppty
+        ftimestamp = 0.0
+        timestamp=0
+        init_timestamp=0
+        line_count =0
+        #while line_count <1000:
+        while True:
+            file_count=0
+    #        for file_handle,signal,var in file_handle_list,signal_list,var_list:
+            for file_handle in file_handle_list:
+                line=file_handle.readline()
+                #first line in file is a label we'll ignore taht at the moment
+                if line_count !=0:
+                    #print line_count,line
+                    #if len(prev_line) != len(signal_list):
+                        
+                    if signal_list[file_count]!='line_num' and signal_list[file_count]!='time_abs':
+                        #print signal_list[file_count]
+                        if prev_line[file_count]!=line:
+                            writer.change(var_list[file_count], timestamp, int(line.rstrip(),16))
+                            prev_line[file_count]=line
+                    elif signal_list[file_count]=='time_abs':
+                        if line_count==1:
+                            #store initial timestamp
+                            ftimestamp=float(line.rstrip())
+                            init_timestamp=int(ftimestamp*1e9) # convert to whole number
+                            timestamp=0
+                        else:
+                            ftimestamp=float(line.rstrip())
+                            timestamp=int(ftimestamp*1e9)-init_timestamp # convert to whole number
+                        
+                else:
+                    #store variable name as previous value bound nt to repeat! bit of a hack
+                    prev_line.insert(file_count,line)
+                
+                file_count+=1
+            
+    #    for timestamp, value in enumerate(range(10, 20, 2)):
+    #        writer.change(counter_var, timestamp, value)
+    #        writer.change(bit_var, timestamp, value>12)
+    #        writer.change(addr_var, timestamp, value+0xff00)
+            line_count+=1
+            timestamp+=1
+            
+except ValueError:
     for file_handle in file_handle_list:
         file_handle.close()
