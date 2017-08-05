@@ -45,9 +45,12 @@ try:
         # skip date as it is not used
         # 0x0020 LLLLLLLL Length Big Endian format Motorola 68000
         #f_name,f_filetype,f_filestart,num_records,f_magic,f_implementation=struct.unpack(">10sHIIx6HI",record[:37])
-        dirf_name=struct.unpack(">10s",record[:10])
+        dirf_name,f_filetype=struct.unpack(">10sH",record[:12])
         if f_name[0]=="WS_FILE   ":
                 print "Correct format file hurrah"
+                print dirf_name
+                print "%X" % f_filetype
+                
         
 
 except ValueError:
