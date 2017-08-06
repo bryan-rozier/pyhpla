@@ -56,17 +56,29 @@ try:
         #read first partial 'data' record
         offset=0x478
         f.seek(offset)
+        num_records-=2# data starts in 3rd record I think
         pod_count=0
         print "tstamp   pod4 pod4 pod2 pod1"
-        while pod_count<100:
-            #bytes_read=0
-            #while bytes_read<12:
+        #while pod_count<100:
+        while num_records>1:#last one seems to be corrupt
+            bytes_read=0
+            string=""
+            while bytes_read<12:
+                if offset % 0x100==0:
+                    offset+=2# skip over two record header bytes 00FE except on last one
+                    f.seek(offset)
+                    num_records-=1
+                    print "%08X" % offset
+                string+=f.read(1)
+                bytes_read+=1
+                offset+=1
                 
-            record = f.read(12)#timestamp plus 4 pods worth of data
+            record=string    
+            #record = f.read(12)#timestamp plus 4 pods worth of data
             d_timestamp,d_pod4,d_pod3,d_pod2,d_pod1=struct.unpack(">IHHHH",record[:32])
-            print "%08X %04X %04X %04X %04X" % (d_timestamp,d_pod4,d_pod3,d_pod2,d_pod1)
+            #print "%08X %04X %04X %04X %04X" % (d_timestamp,d_pod4,d_pod3,d_pod2,d_pod1)
             pod_count+=1    
-        
+        print "%08X %04X %04X %04X %04X" % (d_timestamp,d_pod4,d_pod3,d_pod2,d_pod1)
 
 except ValueError:
     print "bad fing appen"
