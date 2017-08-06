@@ -44,13 +44,28 @@ try:
         # 0x0002 "HPSLIF" Text strin inidctaes file type
         # skip date as it is not used
         # 0x0020 LLLLLLLL Length Big Endian format Motorola 68000
-        #f_name,f_filetype,f_filestart,num_records,f_magic,f_implementation=struct.unpack(">10sHIIx6HI",record[:37])
-        dirf_name,f_filetype=struct.unpack(">10sH",record[:12])
+        dirf_name,f_filetype,f_filestart,num_records,f_magic,f_implementation=struct.unpack(">10sHII6xHI",record[:32])
         if f_name[0]=="WS_FILE   ":
                 print "Correct format file hurrah"
-                print dirf_name
-                print "%X" % f_filetype
+                print "dir name %s" % dirf_name
+                print "f_filetype %X" % f_filetype
+                print "f_filestart%X" % f_filestart
+                print "numrecords %04X" % num_records
+                print "f_magic %02X" % f_magic
+                print "f_implementation %04X" % f_implementation
+        #read first partial 'data' record
+        offset=0x478
+        f.seek(offset)
+        pod_count=0
+        print "tstamp   pod4 pod4 pod2 pod1"
+        while pod_count<100:
+            #bytes_read=0
+            #while bytes_read<12:
                 
+            record = f.read(12)#timestamp plus 4 pods worth of data
+            d_timestamp,d_pod4,d_pod3,d_pod2,d_pod1=struct.unpack(">IHHHH",record[:32])
+            print "%08X %04X %04X %04X %04X" % (d_timestamp,d_pod4,d_pod3,d_pod2,d_pod1)
+            pod_count+=1    
         
 
 except ValueError:
