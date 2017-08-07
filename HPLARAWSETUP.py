@@ -72,14 +72,16 @@ try:
                 offset+=1
                 
             record=string
-            print "%08X" % offset
+            #print "%08X" % offset
             #print record,len(record)
             #record = f.read(12)#timestamp plus 4 pods worth of data
             #d_timestamp,d_pod4,d_pod3,d_pod2,d_pod1=struct.unpack(">IHHHH",record[:32])
-            signal_name,w1,w2,w3,w4,w5,w6,width,b1,b2,b3=struct.unpack("6sHHHHHHBBBB",record[:22])
+            signal_name,w1,w2,w3,w4,w5,w6,width,b1,b2,b3=struct.unpack(">6sHHHHHHBBBB",record[:22])
             #print "%08X %04X %04X %04X %04X" % (d_timestamp,d_pod4,d_pod3,d_pod2,d_pod1)
             print "%s %04X %04X %04X %04X %04X %04X %02d %02X %02X %02X" % (signal_name,w1,w2,w3,w4,w5,w6,width,b1,b2,b3)
-            pod_count+=1    
+            pod_count+=1
+            if width==0:
+                break
         #print "%08X %04X %04X %04X %04X" % (d_timestamp,d_pod4,d_pod3,d_pod2,d_pod1)
 
 except ValueError:
