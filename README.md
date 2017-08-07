@@ -13,11 +13,15 @@ $pwd\slot_d\data.asc\machine1\
 
 It will add all files the above directory to the VCD file except the the 
 following:-
+
 1st_line.txt - ignored
+
 line_num.txt - ignored
+
 time_abs.txt - timestamp assumed this is nanoseconds. 
                Don't think VCD can cope with negative time stamps so VCD is 
                relative to first sample.
+               
 example of use:
 python VCD_example.py > fred.vcd
 
@@ -33,4 +37,11 @@ pyvcd package:
 
   https://github.com/SanDisk-Open-Source/pyvcd
 
+HPLARAW2VCD.py will eventually extract the LA data from the HP16555A raw data
+file - this is much smaller so quicker to ftp than the ascii files. Work in 
+progress currently can extract the headers and packed data.
+
+HPLARAWSETUP.py will eventually extract the the definition of the data fields 
+used from the setup.raw file. Work in progress will extract list of fields and 
+width of each field.
 
