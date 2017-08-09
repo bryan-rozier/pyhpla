@@ -42,7 +42,7 @@ try:
         # 0x0002 "HPSLIF" Text strin inidctaes file type
         # skip date as it is not used
         # 0x0020 LLLLLLLL Length Big Endian format Motorola 68000
-        dirf_name,f_filetype,f_filestart,num_records,f_magic,f_implementation=struct.unpack(">10sHII6xHI",record[:32])
+        f_name,f_filetype,f_filestart,num_records,f_magic,f_implementation=struct.unpack(">10sHII6xHI",record[:32])
         if f_name[0]=="WS_FILE   ":
                 print "Correct format file hurrah"
                 print "dir name %s" % dirf_name
@@ -56,7 +56,7 @@ try:
         f.seek(offset)
         num_records-=2# data starts in 3rd record I think
         pod_count=0
-        print "tstamp   pod4 pod4 pod2 pod1"
+        print "signal,w1,b2,polarity,w3,w4,w5,w6,width,b1,b2,b3"
         while pod_count<20:
         #while num_records>1:#last one seems to be corrupt
             bytes_read=0
@@ -76,9 +76,9 @@ try:
             #print record,len(record)
             #record = f.read(12)#timestamp plus 4 pods worth of data
             #d_timestamp,d_pod4,d_pod3,d_pod2,d_pod1=struct.unpack(">IHHHH",record[:32])
-            signal_name,w1,w2,w3,w4,w5,w6,width,b1,b2,b3=struct.unpack(">6sHHHHHHBBBB",record[:22])
+            signal_name,w1,b2,polarity,w3,w4,w5,w6,width,b1,b2,b3=struct.unpack(">6sHBBHHHHBBBB",record[:22])
             #print "%08X %04X %04X %04X %04X" % (d_timestamp,d_pod4,d_pod3,d_pod2,d_pod1)
-            print "%s %04X %04X %04X %04X %04X %04X %02d %02X %02X %02X" % (signal_name,w1,w2,w3,w4,w5,w6,width,b1,b2,b3)
+            print "%s %04X %02X %02X %04X %04X %04X %04X %02d %02X %02X %02X" % (signal_name,w1,b2,polarity,w3,w4,w5,w6,width,b1,b2,b3)
             pod_count+=1
             if width==0:
                 break

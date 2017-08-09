@@ -45,3 +45,14 @@ HPLARAWSETUP.py will eventually extract the the definition of the data fields
 used from the setup.raw file. Work in progress will extract list of fields and 
 width of each field.
 
+This code was developed using the Anaconda2 environment built for 64 bit-windows.
+(Anaconda 4.4.0 (64-bit) which includes Python 2.7.13).
+
+If you want a C library rather than Python check out this :-
+
+http://www.brouhaha.com/~eric/software/la2vcd/
+https://github.com/rickyrockrat/la2vcd2
+
+
+
+
