@@ -56,7 +56,7 @@ try:
         f.seek(offset)
         num_records-=2# data starts in 3rd record I think
         pod_count=0
-        print "signal,w1,format,polarity,weird_offset,w5,w6,width,enable,sequence,b4"
+        print "label,unknown1,lformat,polarity,weird_offset,unknown_offset,width,enable,sequence,b4"
         while pod_count<20:
         #while num_records>1:#last one seems to be corrupt
             bytes_read=0
@@ -76,8 +76,8 @@ try:
             #print record,len(record)
             #record = f.read(12)#timestamp plus 4 pods worth of data
             #d_timestamp,d_pod4,d_pod3,d_pod2,d_pod1=struct.unpack(">IHHHH",record[:32])
-            signal_name,w1,format,polarity,weird_offset,w5,w6,width,enable,sequence,b4=struct.unpack(">6sHBBLHHBBBB",record[:22])
-            print "%s %04X %02X %02X %08X %04X %04X %02d %02X %02X %02X" % (signal_name,w1,format,polarity,weird_offset,w5,w6,width,enable,sequence,b4)
+            label,unknown1,lformat,polarity,weird_offset,unknown_offset,width,enable,sequence,b4=struct.unpack(">6sHBBLLBBBB",record[:22])
+            print "%s %04X %02X %02X %08X %08X %02d %02X %02X %02X" % (label,unknown1,lformat,polarity,weird_offset,unknown_offset,width,enable,sequence,b4)
             pod_count+=1
             if width==0:
                 break
