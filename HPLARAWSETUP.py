@@ -43,7 +43,7 @@ try:
         # skip date as it is not used
         # 0x0020 LLLLLLLL Length Big Endian format Motorola 68000
         f_name,f_filetype,f_filestart,num_records,f_magic,f_implementation=struct.unpack(">10sHII6xHI",record[:32])
-        if f_name[0]=="WS_FILE   ":
+        if f_name=="WS_FILE   ":
                 print "Correct format file hurrah"
                 print "dir name %s" % dirf_name
                 print "f_filetype %X" % f_filetype
@@ -51,7 +51,8 @@ try:
                 print "numrecords %04X" % num_records
                 print "f_magic %02X" % f_magic
                 print "f_implementation %04X" % f_implementation
-        #read first partial 'data' record
+        
+        #read label definitions
         offset=0x4B4
         f.seek(offset)
         num_records-=2# data starts in 3rd record I think
