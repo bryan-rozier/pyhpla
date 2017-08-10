@@ -45,7 +45,7 @@ try:
         # skip date as it is not used
         # 0x0020 LLLLLLLL Length Big Endian format Motorola 68000
         dirf_name,f_filetype,f_filestart,num_records,f_magic,f_implementation=struct.unpack(">10sHII6xHI",record[:32])
-        if f_name[0]=="WS_FILE   ":
+        if dirf_name=="WS_FILE   ":
                 print "Correct format file hurrah"
                 print "dir name %s" % dirf_name
                 print "f_filetype %X" % f_filetype
@@ -53,22 +53,50 @@ try:
                 print "numrecords %04X" % num_records
                 print "f_magic %02X" % f_magic
                 print "f_implementation %04X" % f_implementation
+        #read 'DATA' record
+        f.seek(0x200)
+        record = f.read(256)
+        r_marker,r_len,r_description=struct.unpack(">HI32s",record[:38])
+        if r_marker==0x00FE:
+                print "Found: Start of record 0x00FE"
+                print "r_len %08X (%d Bytes)" % (r_len,r_len)
+                print "r_string %s" % r_description
+        # useful things we know about record 1
+        #The 16 bytes of the section header are as follows:
+        #Byte Position
+        #1 10 bytes - Section name ("DATA space space space space space
+        #             space" in ASCII for the DATA instruction).
+        #11 1 byte - Reserved
+        #12 1 byte - Module ID (34 decimal for the HP 16554A and HP 16555A/D master
+        #            boards, and 35 for expander boards)
+        #13 4 bytes - Length of block in bytes that when converted to decimal, specifies
+        #             the number of bytes contained in the data block.
+        # 0x0226 "DATA      " 10 digit filename
+        # 0x0002 "HPSLIF" Text string inidctaes file type
+        # skip date as it is not used
+        # 0x0020 LLLLLLLL Length Big Endian format Motorola 68000
+        dictionary = {34:"HP 16554/5A Master",35:"Expander Board"}
+        d_name,d_reserved,d_ModuleID,block_len=struct.unpack(">10sBBI",record[0x26:0x26+16])
+        if d_name=="DATA      ":
+                print "Found:" + d_name
+                print "d_ModuleID %s" % dictionary[d_ModuleID]
+                print "block_len %08X (%d Bytes)" % (block_len,block_len)
         #read first partial 'data' record
         offset=0x478
         f.seek(offset)
         num_records-=2# data starts in 3rd record I think
         pod_count=0
         print "tstamp   pod4 pod4 pod2 pod1"
-        #while pod_count<100:
-        while num_records>1:#last one seems to be corrupt
+        while pod_count<100:
+        #while num_records>1:#last one seems to be corrupt
             bytes_read=0
             string=""
             while bytes_read<12:
-                if offset % 0x100==0:
+                if offset % 0x100==0:# on a record boundary
                     offset+=2# skip over two record header bytes 00FE except on last one
                     f.seek(offset)
                     num_records-=1
-                    print "%08X" % offset
+                    #print "%08X" % offset
                 string+=f.read(1)
                 bytes_read+=1
                 offset+=1
@@ -76,9 +104,9 @@ try:
             record=string    
             #record = f.read(12)#timestamp plus 4 pods worth of data
             d_timestamp,d_pod4,d_pod3,d_pod2,d_pod1=struct.unpack(">IHHHH",record[:32])
-            #print "%08X %04X %04X %04X %04X" % (d_timestamp,d_pod4,d_pod3,d_pod2,d_pod1)
+            print "%08X %04X %04X %04X %04X" % (d_timestamp,d_pod4,d_pod3,d_pod2,d_pod1)
             pod_count+=1    
-        print "%08X %04X %04X %04X %04X" % (d_timestamp,d_pod4,d_pod3,d_pod2,d_pod1)
+        #print "%08X %04X %04X %04X %04X" % (d_timestamp,d_pod4,d_pod3,d_pod2,d_pod1)
 
 except ValueError:
     print "bad fing appen"
