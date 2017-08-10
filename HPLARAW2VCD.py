@@ -81,6 +81,32 @@ try:
                 print "Found:" + d_name
                 print "d_ModuleID %s" % dictionary[d_ModuleID]
                 print "block_len %08X (%d Bytes)" % (block_len,block_len)
+        # Data Preamble
+        dict_AnalyzerID = {0:"HP16554A Master",1:"HP16555A"}
+        dict_MachineDataMode = {-1:"off",
+                                 0:"70 MHz (HP 16554A) or 100 MHz (HP 16555A/D) State data, no tags",
+                                 1:"70 MHz (HP 16554A) or 100 MHz (HP 16555A/D) State data with tags",
+                                 2:"70 MHz (HP 16554A) or 100 MHz (HP 16555A/D) State data with tags",
+                                 3:"Fast State data, no tags (HP 16555A/D)",
+                                 4:"Fast State data with tags (HP 16555A/D)",
+                                 5:"Fast State data with tags (HP 16555A/D)",
+                                10:"conventional timing data on all channels",
+                                13:"conventional timing data on half channels"}#
+        dict_TagType = {0:"off",1:"time tags",2:"state tags"}
+        p_InstrumentID,p_RevisionCode,p_NumAcqChips,p_AnalyzerID,p_MachineDataMode,p_PodList,p_MasterChip,p_MemDepth,p_unused1,p_SamplePeriod_ps,p_TagType,p_TriggerOffset,p_unused2=struct.unpack(">IIIIIIIIIQIQ30s",record[0x36:0x36+86])
+        if p_InstrumentID==16500:#as its on a HP16500C
+                print "Found p_InstrumentID:%d" % p_InstrumentID
+                print "p_RevisionCode  %08X" % p_RevisionCode
+                print "p_NumAcqChips  %08X"% p_NumAcqChips
+                print "p_AnalyzerID  %s"% dict_AnalyzerID[p_AnalyzerID]
+                print "p_MachineDataMode  %s"% dict_MachineDataMode[p_MachineDataMode]
+                print "p_PodList  %08X"% p_PodList
+                print "p_MasterChip  %08X"% p_MasterChip
+                print "p_MemDepth  %08X"% p_MemDepth
+                print "p_SamplePeriod_ps  %016X (%d)"% (p_SamplePeriod_ps,p_SamplePeriod_ps)
+                print "p_TagType  %s"% dict_TagType[p_TagType]
+                print "p_TriggerOffset  %016X" % p_TriggerOffset
+        
         #read first partial 'data' record
         offset=0x478
         f.seek(offset)
