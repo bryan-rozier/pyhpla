@@ -185,7 +185,7 @@ try:
         f.seek(offset)
         num_records-=2# data starts in 3rd record I think
         pod_count=0
-        print "tstamp   pod4 pod4 pod2 pod1"
+        print "C pod4 pod3 pod2 pod1"
         while pod_count<100:
         #while num_records>1:#last one seems to be corrupt
             bytes_read=0
@@ -202,8 +202,10 @@ try:
                 
             record=string    
             #record = f.read(12)#timestamp plus 4 pods worth of data
-            d_timestamp,d_pod4,d_pod3,d_pod2,d_pod1=struct.unpack(">IHHHH",record[:32])
-            print "%08X %04X %04X %04X %04X" % (d_timestamp,d_pod4,d_pod3,d_pod2,d_pod1)
+            d_clock,d_pod4,d_pod3,d_pod2,d_pod1=struct.unpack(">IHHHH",record[:32])
+            # assume only 1 board therefore only one clock pod ????
+            d_clock&=0xf
+            print "%01X %04X %04X %04X %04X" % (d_clock,d_pod4,d_pod3,d_pod2,d_pod1)
             pod_count+=1    
         #print "%08X %04X %04X %04X %04X" % (d_timestamp,d_pod4,d_pod3,d_pod2,d_pod1)
 
