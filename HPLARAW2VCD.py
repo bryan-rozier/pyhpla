@@ -93,12 +93,15 @@ try:
                                 10:"conventional timing data on all channels",
                                 13:"conventional timing data on half channels"}#
         dict_TagType = {0:"off",1:"time tags",2:"state tags"}
-        p_InstrumentID,p_RevisionCode,p_NumAcqChips,p_AnalyzerID,p_MachineDataMode,p_PodList,p_MasterChip,p_MemDepth,p_unused1,p_SamplePeriod_ps,p_TagType,p_TriggerOffset,p_unused2=struct.unpack(">IIIIIIIIIQIQ30s",record[0x36:0x36+86])
+        p_InstrumentID,p_RevisionCode,p_NumAcqChips,p_AnalyzerID=struct.unpack(">IIII",record[0x36:0x36+16])
         if p_InstrumentID==16500:#as its on a HP16500C
                 print "Found p_InstrumentID:%d" % p_InstrumentID
                 print "p_RevisionCode  %08X" % p_RevisionCode
                 print "p_NumAcqChips  %08X"% p_NumAcqChips
                 print "p_AnalyzerID  %s"% dict_AnalyzerID[p_AnalyzerID]
+        #Offset 0x46 is 70bytes data for Analyzer1
+        p_MachineDataMode,p_PodList,p_MasterChip,p_MemDepth,p_unused1,p_SamplePeriod_ps,p_TagType,p_TriggerOffset,p_unused2=struct.unpack(">iIIIIQIQ30s",record[0x36+16:0x36+16+70])
+        if p_MachineDataMode!=-1:#Machine is active
                 print "p_MachineDataMode  %s"% dict_MachineDataMode[p_MachineDataMode]
                 print "p_PodList  %08X"% p_PodList
                 pl_bitmask=int('00000001',2)
@@ -112,6 +115,23 @@ try:
                 print "p_SamplePeriod_ps  %016X (%d pS)"% (p_SamplePeriod_ps,p_SamplePeriod_ps)
                 print "p_TagType  %s"% dict_TagType[p_TagType]
                 print "p_TriggerOffset  %016X" % p_TriggerOffset
+        #Offset 0x8C is another 70bytes of above data repeated (must be missing some bits???) for Analyzer2
+        p_MachineDataMode2,p_PodList2,p_MasterChip2,p_MemDepth2,p_unused21,p_SamplePeriod_ps2,p_TagType2,p_TriggerOffset2,p_unused22=struct.unpack(">iIIIIQIQ30s",record[0x8C:0x8C+70])
+        if p_MachineDataMode2!=-1:#Machine is active
+                print "p_MachineDataMode2  %s"% dict_MachineDataMode[p_MachineDataMode2]
+                print "p_PodList2  %08X"% p_PodList2
+                pl_bitmask=int('00000001',2)
+                for pod in range (1,12):# pod1 is bit1 (not bit0)
+                    if ((pl_bitmask<<pod) & p_PodList2):
+                        print "pod%d" % pod
+                if ((pl_bitmask<<21) & p_PodList2):#only one embedded clock pod
+                        print "clkpod1"
+                print "p_MasterChip2  %08X"% p_MasterChip2
+                print "p_MemDepth2  %08X"% p_MemDepth2
+                print "p_SamplePeriod_ps2  %016X (%d pS)"% (p_SamplePeriod_ps2,p_SamplePeriod_ps2)
+                print "p_TagType2  %s"% dict_TagType[p_TagType2]
+                print "p_TriggerOffset2  %016X" % p_TriggerOffset2
+        #Offset 0XD2 is count of rows of valid data for each pod
         
         #read first partial 'data' record
         offset=0x478
