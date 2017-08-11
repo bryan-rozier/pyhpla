@@ -133,30 +133,50 @@ try:
                 print "p_TriggerOffset2  %016X" % p_TriggerOffset2
         #Offset 0xD2 unused
         #Offset 0XFA is count of rows of valid data for each pod
-        p_card3_pod4_valid_rows=struct.unpack(">I",record[0xFA:0xFA+4])# last thing in this 256 byte block
+        p_card3_pod4_valid_rows,p_card3_pod3_valid_rows_hi=struct.unpack(">IH",record[0xFA:0xFA+6])# last thing in this 256 byte block
         # Next block
         f.seek(0x300)
         record = f.read(256)
-        r_marker,p_card3_pod3_valid_rows,p_card3_pod2_valid_rows,p_card3_pod1_valid_rows=struct.unpack(">HIII",record[0x00:0x00+14])
+        r_marker,p_card3_pod3_valid_rows_lo,p_card3_pod2_valid_rows,p_card3_pod1_valid_rows=struct.unpack(">HHII",record[0x00:0x00+12])
         print "next block"
         if r_marker==0x00FE:
+            p_card3_pod3_valid_rows=p_card3_pod3_valid_rows_lo + (p_card3_pod3_valid_rows_hi<<8)
             print "p_card3_pod4_valid_rows %08X"% p_card3_pod4_valid_rows
             print "p_card3_pod3_valid_rows %08X"% p_card3_pod3_valid_rows
             print "p_card3_pod2_valid_rows %08X"% p_card3_pod2_valid_rows
             print "p_card3_pod1_valid_rows %08X"% p_card3_pod1_valid_rows
-        p_card2_pod4_valid_rows,p_card2_pod3_valid_rows,p_card2_pod2_valid_rows,p_card2_pod1_valid_rows=struct.unpack(">IIII",record[0x0E:0x0E+16])
+        p_card2_pod4_valid_rows,p_card2_pod3_valid_rows,p_card2_pod2_valid_rows,p_card2_pod1_valid_rows=struct.unpack(">IIII",record[0x0C:0x0C+16])
         print "p_card2_pod4_valid_rows %08X"% p_card2_pod4_valid_rows
         print "p_card2_pod3_valid_rows %08X"% p_card2_pod3_valid_rows
         print "p_card2_pod2_valid_rows %08X"% p_card2_pod2_valid_rows
         print "p_card2_pod1_valid_rows %08X"% p_card2_pod1_valid_rows
-        p_card1_pod4_valid_rows,p_card1_pod3_valid_rows,p_card1_pod2_valid_rows,p_card1_pod1_valid_rows=struct.unpack(">IIII",record[0x1E:0x1E+16])
+        p_card1_pod4_valid_rows,p_card1_pod3_valid_rows,p_card1_pod2_valid_rows,p_card1_pod1_valid_rows=struct.unpack(">IIII",record[0X1C:0X1C+16])
         print "p_card1_pod4_valid_rows %08X"% p_card1_pod4_valid_rows
         print "p_card1_pod3_valid_rows %08X"% p_card1_pod3_valid_rows
         print "p_card1_pod2_valid_rows %08X"% p_card1_pod2_valid_rows
         print "p_card1_pod1_valid_rows %08X"% p_card1_pod1_valid_rows
+        #Offset 0x2c Unused (40 Bytes)
+        # trigger point
+        p_card3_pod4_trigger_marker,p_card3_pod3_trigger_marker,p_card3_pod2_trigger_marker,p_card3_pod1_trigger_marker=struct.unpack(">IIII",record[0x54:0x54+16])
+        print "p_card3_pod4_trigger_marker %08X"% p_card3_pod4_trigger_marker
+        print "p_card3_pod3_trigger_marker %08X"% p_card3_pod3_trigger_marker
+        print "p_card3_pod2_trigger_marker %08X"% p_card3_pod2_trigger_marker
+        print "p_card3_pod1_trigger_marker %08X"% p_card3_pod1_trigger_marker
+        p_card2_pod4_trigger_marker,p_card2_pod3_trigger_marker,p_card2_pod2_trigger_marker,p_card2_pod1_trigger_marker=struct.unpack(">IIII",record[0x64:0x64+16])
+        print "p_card2_pod4_trigger_marker %08X"% p_card2_pod4_trigger_marker
+        print "p_card2_pod3_trigger_marker %08X"% p_card2_pod3_trigger_marker
+        print "p_card2_pod2_trigger_marker %08X"% p_card2_pod2_trigger_marker
+        print "p_card2_pod1_trigger_marker %08X"% p_card2_pod1_trigger_marker
+        p_card1_pod4_trigger_marker,p_card1_pod3_trigger_marker,p_card1_pod2_trigger_marker,p_card1_pod1_trigger_marker=struct.unpack(">IIII",record[0x74:0x74+16])
+        print "p_card1_pod4_trigger_marker %08X"% p_card1_pod4_trigger_marker
+        print "p_card1_pod3_trigger_marker %08X"% p_card1_pod3_trigger_marker
+        print "p_card1_pod2_trigger_marker %08X"% p_card1_pod2_trigger_marker
+        print "p_card1_pod1_trigger_marker %08X"% p_card1_pod1_trigger_marker
+        
         #Time
         f.seek(0x400)
         record = f.read(256)
+        # Date/Time at 0x470
         p_year,p_month,p_day,p_weekday,p_hour,p_min,p_secs=struct.unpack(">HBBBBBB",record[0x70:0x70+8])
         dict_weekday = {1:"Monday",2:"Tuesday",3:"Wednesday",4:"Thursday",5:"Friday",6:"Saturday",7:"Sunday"}
         print "%d/%d/%d %s %d:%d:%d"% (p_day, p_month, p_year+1990,dict_weekday[p_weekday],p_hour,p_min,p_secs)
