@@ -101,9 +101,15 @@ try:
                 print "p_AnalyzerID  %s"% dict_AnalyzerID[p_AnalyzerID]
                 print "p_MachineDataMode  %s"% dict_MachineDataMode[p_MachineDataMode]
                 print "p_PodList  %08X"% p_PodList
+                pl_bitmask=int('00000001',2)
+                for pod in range (1,12):# pod1 is bit1 (not bit0)
+                    if ((pl_bitmask<<pod) & p_PodList):
+                        print "pod%d" % pod
+                if ((pl_bitmask<<21) & p_PodList):#only one embedded clock pod
+                        print "clkpod1"
                 print "p_MasterChip  %08X"% p_MasterChip
                 print "p_MemDepth  %08X"% p_MemDepth
-                print "p_SamplePeriod_ps  %016X (%d)"% (p_SamplePeriod_ps,p_SamplePeriod_ps)
+                print "p_SamplePeriod_ps  %016X (%d pS)"% (p_SamplePeriod_ps,p_SamplePeriod_ps)
                 print "p_TagType  %s"% dict_TagType[p_TagType]
                 print "p_TriggerOffset  %016X" % p_TriggerOffset
         
