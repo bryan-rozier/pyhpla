@@ -131,8 +131,35 @@ try:
                 print "p_SamplePeriod_ps2  %016X (%d pS)"% (p_SamplePeriod_ps2,p_SamplePeriod_ps2)
                 print "p_TagType2  %s"% dict_TagType[p_TagType2]
                 print "p_TriggerOffset2  %016X" % p_TriggerOffset2
-        #Offset 0XD2 is count of rows of valid data for each pod
-        
+        #Offset 0xD2 unused
+        #Offset 0XFA is count of rows of valid data for each pod
+        p_card3_pod4_valid_rows=struct.unpack(">I",record[0xFA:0xFA+4])# last thing in this 256 byte block
+        # Next block
+        f.seek(0x300)
+        record = f.read(256)
+        r_marker,p_card3_pod3_valid_rows,p_card3_pod2_valid_rows,p_card3_pod1_valid_rows=struct.unpack(">HIII",record[0x00:0x00+14])
+        print "next block"
+        if r_marker==0x00FE:
+            print "p_card3_pod4_valid_rows %08X"% p_card3_pod4_valid_rows
+            print "p_card3_pod3_valid_rows %08X"% p_card3_pod3_valid_rows
+            print "p_card3_pod2_valid_rows %08X"% p_card3_pod2_valid_rows
+            print "p_card3_pod1_valid_rows %08X"% p_card3_pod1_valid_rows
+        p_card2_pod4_valid_rows,p_card2_pod3_valid_rows,p_card2_pod2_valid_rows,p_card2_pod1_valid_rows=struct.unpack(">IIII",record[0x0E:0x0E+16])
+        print "p_card2_pod4_valid_rows %08X"% p_card2_pod4_valid_rows
+        print "p_card2_pod3_valid_rows %08X"% p_card2_pod3_valid_rows
+        print "p_card2_pod2_valid_rows %08X"% p_card2_pod2_valid_rows
+        print "p_card2_pod1_valid_rows %08X"% p_card2_pod1_valid_rows
+        p_card1_pod4_valid_rows,p_card1_pod3_valid_rows,p_card1_pod2_valid_rows,p_card1_pod1_valid_rows=struct.unpack(">IIII",record[0x1E:0x1E+16])
+        print "p_card1_pod4_valid_rows %08X"% p_card1_pod4_valid_rows
+        print "p_card1_pod3_valid_rows %08X"% p_card1_pod3_valid_rows
+        print "p_card1_pod2_valid_rows %08X"% p_card1_pod2_valid_rows
+        print "p_card1_pod1_valid_rows %08X"% p_card1_pod1_valid_rows
+        #Time
+        f.seek(0x400)
+        record = f.read(256)
+        p_year,p_month,p_day,p_weekday,p_hour,p_min,p_secs=struct.unpack(">HBBBBBB",record[0x70:0x70+8])
+        dict_weekday = {1:"Monday",2:"Tuesday",3:"Wednesday",4:"Thursday",5:"Friday",6:"Saturday",7:"Sunday"}
+        print "%d/%d/%d %s %d:%d:%d"% (p_day, p_month, p_year+1990,dict_weekday[p_weekday],p_hour,p_min,p_secs)
         #read first partial 'data' record
         offset=0x478
         f.seek(offset)
